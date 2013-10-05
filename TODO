@@ -1,0 +1,7 @@
+Description Resource    Path    Location    Type
+FIXME: storage = local debería ser tambien un parametro configurable    proxmox_template_list.rb    /knife-proxmox/lib/chef line 53 Studio Task
+TODO: Create a good gem using this tutorial http://guides.rubygems.org/make-your-own-gem/#writing-tests
+TODO: All inputs MUST be checked and errors MUST be catched.
+TODO: Testing of everything
+TODO: change ticket.gsub for CGI.escape(str)    proxmox_server_create.rb    /knife-proxmox/lib/chef line 110    Studio Task
+TODO: parameters for openvz should be in other object   proxmox_server_create.rb    /knife-proxmox/lib/chef line 55 Studio Task

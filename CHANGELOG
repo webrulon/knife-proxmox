@@ -1,0 +1,168 @@
+Author: Jorge Moratilla
+Date: 2012-10-07
+
+[2013-05-07]
+Version: 0.0.19
+* knife proxmox server destroy now includes option -y to avoid confirmation (used for scripting)
+
+[2013-05-03]
+Version: 0.0.18
+* knife proxmox server list now sorts output by vmid (default) and by field (vmid, node, name)
+
+[2013-04-29]
+Version: 0.0.17
+* knife proxmox server destroy now requests confirmation to delete a server
+
+[2013-01-23]
+Version: 0.0.10
+* knife proxmox server create can bootstrap a server, enabled by default
+
+[2013-01-21]
+Version: 0.0.9
+* Added IP field to server list command
+
+[2012-12-21]
+Version: 0.0.8
+* Added a patch for proxmox that allows me to fetch the IP of the guess
+* Working with the PVE API
+
+[2012-12-13]
+Version: 0.0.6
+* Added new field in proxmox server list to show the node the vm is in
+* Now you can start, stop, destroy a server without to specify the node
+
+[2012-12-12]
+Version: 0.0.5
+* Improved problems with selection of the node of the cluster
+* Better checking of task status
+* Solved problem #3 catching from exceptions
+
+[2012-11-12]
+
+Added an option to knife proxmox server create that allows the user to specify the ipaddress.  If not, then the VM will be created with DHCP enabled.
+Created a very basic task control for creating and deleting servers.  Great refactoring needed.
+Now, I'm using bitbucket issue control center to keep control of issues.  Please use this link to add control keys in pushes 
+https://confluence.atlassian.com/display/BITBUCKET/Automatically+Resolving+Issues+when+Users+Push+Code 
+
+[2012-11-06]
+
+Added server start and stop commands
+$ knife proxmox server start --vmid 401
+Starting VM 401....
+Result: 200
+
+$ knife proxmox server stop --vmid 103
+Stoping VM 103....
+Result: 200
+
+
+[2012-11-05]
+
+First refactor, ProxmoxBase has now all the common parameters
+Added proxmox server list to show current servers
+Example:
+$ knife proxmox server list
+Id   Name                 Type    Status
+104  tetatet.jnlabs.isp   openvz  down  
+470  sg-node1.jnlabs.isp  openvz  up  
+102  test                 qemu    down  
+202  chef-client1         openvz  down 
+
+[2012-10-24]
+
+Improved knife commands.  Needs refactor internally
+Examples:
+
+List templates installed
+$ knife proxmox  template list -U https://localhost:8006/api2/json/ -n localhost -u test -p test123 -R pve -VV
+DEBUG: Using configuration from /home/jorge/workspace/chef-repo/.chef/knife.rb
+Id  Name                                                         Size  
+0   local:vztmpl/debian-6.0-request-tracker_3.8.8-2_i386.tar.gz  171 MB
+1   local:vztmpl/old_ubuntu-11.10-x86_64.tar.gz                  124 MB
+2   local:vztmpl/ubuntu-10.04-standard_10.04-4_i386.tar.gz       135 MB
+3   local:vztmpl/ubuntu-11.10-x86_64-jorge1-.tar.gz              124 MB
+4   local:vztmpl/ubuntu-11.10-x86_64-jorge2-.tar.gz              154 MB
+ 
+
+List templates available to download
+$ knife proxmox template available -U https://localhost:8006/api2/json/ -u test -p test123 -n localhost -R pve  -VV
+DEBUG: Using configuration from /home/jorge/workspace/chef-repo/.chef/knife.rb
+Name                                                       Operating System
+debian-6-turnkey-concrete5_12.0-1_i386.tar.gz              debian-6        
+ubuntu-10.04-turnkey-prestashop_11.3-1_i386.tar.gz         ubuntu-10.04    
+debian-6-turnkey-joomla25_12.0-1_i386.tar.gz               debian-6        
+debian-6-turnkey-tomcat-apache_12.0-1_i386.tar.gz          debian-6        
+debian-6.0-wordpress_3.4.2-1_i386.tar.gz                   debian-6.0 .....
+
+
+Create a server
+$ knife proxmox server create -U https://localhost:8006/api2/json/ -n localhost -u test -p test123 -R pve -N vm-node1 --template 4 -VV 
+DEBUG: Using configuration from /home/jorge/workspace/chef-repo/.chef/knife.rb
+DEBUG: vmid=303&hostname=vm-node1&storage=local&password=pve123&ostemplate=local%3Avztmpl%2Fubuntu-11.10-x86_64-jorge2-.tar.gz&memory=512&swap=512&disk=4&cpus=1&netif=ifname%3Deth0%2Cbridge%3Dvmbr0
+Result: 200
+..............................
+Starting VM 303....
+Result: 200
+
+Destroy a server
+$ knife proxmox server destroy -U https://localhost:8006/api2/json/ -u test -p test123 -n localhost -R pve -N vm-node1 -VV
+DEBUG: Using configuration from /home/jorge/workspace/chef-repo/.chef/knife.rb
+node to destroy: vm-node1
+Stopping VM 303....
+Result: 200
+..............................
+Result: 200
+
+
+[2012-10-17]
+
+First preliminar version is working, but only as separate knife plugin files.
+
+In order to work, these files must be copied to your ~/.chef/plugins/knife directory.  If it
+doesn't exist, then you must create it.
+
+Actions implemented
+
+proxmox server create
+proxmox server destroy
+proxmox template available
+proxmox template list
+
+Next steps
+
+R.E.F.A.C.T.O.R
+
+Options in command line for each action
+
+
+[2012-10-07]
+
+This project is a plugin for knife that allows a user to list templates, create and delete 
+proxmox virtual machines (openvz instances mainly)
+
+I've two ways to do this:
+A) Create a knife plugin directly using command line tools (pvesh and pvesm)
+B) Create a provider for fog (github.com/fog/fog) and then create the knife plugin based on fog
+
+Thoughts:
+Option A is the easy quick and dirty solution for me now.
+Option B is the proper way to do it.  Unfortunately, I'm not able to afford it.  It's too complex.
+
+Actions:
+Option A)
+
+. knife proxmox template list
+|- pvesh get /nodes/SERVER_NAME/storage/STORAGE/content
+|--{
+      "content" : "vztmpl",
+      "format" : "tgz",
+      "size" : 161655654,
+      "volid" : "local:vztmpl/ubuntu-11.10-x86_64-jorge2-.tar.gz"
+   },
+
+. knife proxmox server create
+|- pvesh create /nodes/localhost/openvz -ostemplate local:vztmpl/ubuntu-11.10-x86_64-jorge2-.tar.gz -vmid 106 -cpus 1 -memory 1024 -disk 4 -hostname jorge_test
+
+. knife proxmox server destroy
+|- pvesh destroy 106
+
