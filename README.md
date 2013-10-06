@@ -1,7 +1,7 @@
 # Chef::Knife::Proxmox
 
-Authors: Jorge Moratilla, Sergio Galvan
-Date: 2012-10-07
+Authors: Jorge Moratilla, Sergio Galvan, Adam Enger
+Date: 2013-10-06
 
 
 ## Description
@@ -10,7 +10,7 @@ This knife plugin allows to access Proxmox Virtualization Environment (Proxmox V
 It allows you to lists templates installed on the server/cluster (like images or amis), create a server or
 destroy it.
 
-Currently it only supports management of openVZ instances, but KVM instances will be able in a future.
+Support for QEMU is in progress. 
 
 ## Requirements
 
@@ -24,6 +24,7 @@ Then install your ruby language (recommended ruby-1.9.3-xxx)
 
 ## Actions implemented
 
++ proxmox iso list
 + proxmox server list
 + proxmox server info
 + proxmox server create
@@ -34,6 +35,14 @@ Then install your ruby language (recommended ruby-1.9.3-xxx)
 + proxmox template list
 
 ## Some Examples
+
+### List ISO images
+Id  Name                                                           Size  
+0   local:iso/CentOS-6.4-i386-minimal.iso                          300 MB
+1   local:iso/CentOS-6.4-x86_64-minimal.iso                        342 MB
+2   local:iso/debian-7.1.0-i386-netinst.iso                        277 MB
+3   local:iso/pfSense-LiveCD-2.0.3-RELEASE-i386-20130412-1022.iso  89 MB 
+4   local:iso/ubuntu-12.04.3-desktop-i386.iso                      707 MB
 
 ### List servers
     $ knife proxmox server list
