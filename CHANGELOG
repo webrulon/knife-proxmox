@@ -1,5 +1,9 @@
-Author: Jorge Moratilla
+Author: Jorge Moratilla, Adam Enger
 Date: 2012-10-07
+
+[2013-10-05]
+Version: 0.0.20
+* adding support for qemu on all actions
 
 [2013-05-07]
 Version: 0.0.19
