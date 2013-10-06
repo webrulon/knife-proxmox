@@ -19,7 +19,14 @@ Support for QEMU is in progress.
 
 Then install your ruby language (recommended ruby-1.9.3-xxx)
 
-(See installation instructions beneath)
+## Installation
+
+Since I don't feel like uploading this to rubygems.org you'll have to manually build and install.
+
+    $ git clone https://github.com/adamenger/knife-proxmox.git
+	$ gem build knife-proxmox/knife-proxmox.gemspec
+    $ gem install --local knife-proxmox/knife-proxmox-0.0.20.gem
+
 
 ## knife.rb settings
     knife[:pve_cluster_url] = 'https://vm.adamenger.com:8006/api2/json/'
@@ -160,47 +167,3 @@ Then install your ruby language (recommended ruby-1.9.3-xxx)
     Result: 200
     WARNING: Deleted node vm-node1
     WARNING: Deleted client vm-node1
-
-
-## Installation
-
-This gem must be installed on your system using the command
-
-    $ gem install knife-proxmox
-
-If you want to read values from the environment variables modify your knife.rb:
-
-    knife[:pve_cluster_url] ||= "#{ENV['PVE_CLUSTER_URL']}"
-    knife[:pve_user_name]   ||= "#{ENV['PVE_USER_NAME']}"
-    knife[:pve_node_name]   ||= "#{ENV['PVE_NODE_NAME']}"
-    knife[:pve_user_realm]  ||= "#{ENV['PVE_USER_REALM']}"
-
-However I don't recommend to have the user password as a environment variable.
-knife[:pve_user_password] = "#{ENV['PVE_CLUSTER_URL']}"
-
-### Environment Variables
-
-    PVE_CLUSTER_URL = https://<proxmox_server>:8006/api2/json/
-    PVE_USER_NAME   = <user>
-    PVE_PASSWORD_NAME = <password>
-    PVE_USER_REALM  = <pam|pve|others>
-    PVE_NODE_NAME   = <nodename>
-
-If you want to alter some variable by command line then you can use the following options:
--n --node <node>   If in a cluster, this argument will specify which node of the cluster will do the action
--U --pve_cluster_url <http://localhost...> Will change the cluster to access to
--u --username <user>   Same for user
--p --password <pass>   Same for password
--r --realm    <realm>  Same for the realm used to authenticate
-
-There is a script in extra/set_environment_variables.sh that creates the
-set of variables needed for knife-proxmox. Just answer the questions and
-paste the output into your profile file.
-
-
-
-### ABOUT CHEF AND PROXMOX
-
-To bootstrap a newly created VM, you should apply the patch inside the extra directory.  Otherwise you must
-specify the IP address in the knife proxmox server create --ipaddress argument.
-
