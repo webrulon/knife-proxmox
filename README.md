@@ -21,6 +21,13 @@ Then install your ruby language (recommended ruby-1.9.3-xxx)
 
 (See installation instructions beneath)
 
+# knife.rb proxmox settings
+knife[:pve_cluster_url] = 'https://vm.adamenger.com:8006/api2/json/'
+knife[:pve_node_name] = "vm"
+knife[:pve_user_name] = "root"
+knife[:pve_user_password] = "password"
+knife[:pve_user_realm] = "pam"
+knife[:pve_vm_type] = "qemu"
 
 ## Actions implemented
 
@@ -37,12 +44,13 @@ Then install your ruby language (recommended ruby-1.9.3-xxx)
 ## Some Examples
 
 ### List ISO images
-Id  Name                                                           Size  
-0   local:iso/CentOS-6.4-i386-minimal.iso                          300 MB
-1   local:iso/CentOS-6.4-x86_64-minimal.iso                        342 MB
-2   local:iso/debian-7.1.0-i386-netinst.iso                        277 MB
-3   local:iso/pfSense-LiveCD-2.0.3-RELEASE-i386-20130412-1022.iso  89 MB 
-4   local:iso/ubuntu-12.04.3-desktop-i386.iso                      707 MB
+    #$knife proxmox iso list
+    Id  Name                                                           Size  
+    0   local:iso/CentOS-6.4-i386-minimal.iso                          300 MB
+    1   local:iso/CentOS-6.4-x86_64-minimal.iso                        342 MB
+    2   local:iso/debian-7.1.0-i386-netinst.iso                        277 MB
+    3   local:iso/pfSense-LiveCD-2.0.3-RELEASE-i386-20130412-1022.iso  89 MB 
+    4   local:iso/ubuntu-12.04.3-desktop-i386.iso                      707 MB
 
 ### List servers
     $ knife proxmox server list
