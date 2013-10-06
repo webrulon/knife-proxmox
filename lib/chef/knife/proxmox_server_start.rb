@@ -20,11 +20,11 @@ class Chef
         :description => "The type of vm you want to control (qemu or openvz)"
 
       def run
-        # Needed
         connection
         
-        check_config_parameter(:vm_id)
-        check_config_parameter(:pve_vm_type)
+        [:vm_id, :pve_vm_type].each do |param|
+          check_config_parameter(param)
+        end
         
         server_start(config[:vm_id], config[:pve_vm_type])
       end
