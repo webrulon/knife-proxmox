@@ -54,6 +54,12 @@ class Chef
             :long  => "--node nodename",
             :description => "Proxmox VE server name where you will actuate",
             :proc  => Proc.new {|node| Chef::Config[:knife][:pve_node_name] = node }
+
+          option :pve_vm_type,
+            :short => "-t type",
+            :long  => "--type vm_type",
+            :description => "The type of vm you'd like to control",
+            :proc  => Proc.new {|type| Chef::Config[:knife][:pve_vm_type] = type }
           
         end
       end
@@ -165,7 +171,7 @@ class Chef
           if (response.code == 200) then
             result = "OK"
           else
-            result = "NOK: error code = " + response.code.to_s
+            result = "Error: #{response.code.to_s} - #{response.body}"
           end
           taskid = JSON.parse(response.body)['data']
           waitfor(taskid)
@@ -191,14 +197,23 @@ class Chef
       end
       
       # server_start: Starts the server
-      def server_start(vmid)
+      def server_start(vmid, type)
         node = vmid_to_node(vmid)
-        ui.msg("Starting VM #{vmid} on node #{node}....")
-        @connection["nodes/#{node}/openvz/#{vmid}/status/start"].post "", @auth_params do |response, request, result, &block|
-          # take the response and extract the taskid
-          action_response("server start",response)
+        ui.msg("Starting VM #{vmid} on node #{node} of #{type}....")
+        if type == "qemu"
+          @connection["nodes/#{node}/qemu/#{vmid}/status/start"].post "", @auth_params do |response, request, result, &block|
+            # take the response and extract the taskid
+            action_response("server start",response)
+          end
+        elsif type == "openvz"
+          @connection["nodes/#{node}/openvz/#{vmid}/status/start"].post "", @auth_params do |response, request, result, &block|
+            # take the response and extract the taskid
+            action_response("server start",response)
+          end
+        else
+          puts "Invalid server type!"
+          exit 1
         end
-        
       end
       
       # server_stop: Stops the server
