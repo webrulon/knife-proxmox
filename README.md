@@ -22,12 +22,12 @@ Then install your ruby language (recommended ruby-1.9.3-xxx)
 (See installation instructions beneath)
 
 ## knife.rb settings
-knife[:pve_cluster_url] = 'https://vm.adamenger.com:8006/api2/json/'
-knife[:pve_node_name] = "vm"
-knife[:pve_user_name] = "root"
-knife[:pve_user_password] = "password"
-knife[:pve_user_realm] = "pam"
-knife[:pve_vm_type] = "qemu"
+    knife[:pve_cluster_url] = 'https://vm.adamenger.com:8006/api2/json/'
+	knife[:pve_node_name] = "vm"
+	knife[:pve_user_name] = "root"
+	knife[:pve_user_password] = "password"
+	knife[:pve_user_realm] = "pam"
+	knife[:pve_vm_type] = "qemu"
 
 ## Actions implemented
 
