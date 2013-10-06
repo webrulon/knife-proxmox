@@ -1,6 +1,7 @@
 # Chef::Knife::Proxmox
 
 Authors: Jorge Moratilla, Sergio Galvan, Adam Enger
+
 Date: 2013-10-06
 
 

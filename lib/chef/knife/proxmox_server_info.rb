@@ -9,15 +9,15 @@ class Chef
 
       banner "knife proxmox server info (options)"
 
-      option :chef_node_name,
-        :short => "-H hostname",
-        :long => "--hostname hostname",
-        :description => "The name of the node and client to delete, if it differs from the server name.  Only has meaning when used with the '--purge' option."
-        
       option :vm_id,
         :short => "-I number",
         :long  => "--vmid number",
         :description => "The numeric identifier of the VM"
+
+      option :pve_vm_type,
+        :short => "-t type",
+        :long  => "--type vm type",
+        :description => "The type of vm you want to control (qemu or openvz)"
 
       option :parameter,
         :short => "-P parameter",
@@ -26,24 +26,14 @@ class Chef
 
 
       def run
-        # Needed
         connection
-        
-        vm_id = nil
-        name = nil
-        if (config[:vm_id].nil? and config[:chef_node_name].nil?) then
-          ui.error("You must use -I <id> or -H <Hostname>")
-          exit 1
-        elsif (!config[:chef_node_name].nil?)
-            name = config[:chef_node_name]
-            vm_id = server_name_to_vmid(name)
-        else
-          vm_id = config[:vm_id]
+        [:vm_id, :pve_vm_type].each do |param|
+          check_config_parameter(param)
         end
-        
+
         parameter = config[:parameter] || 'all'
         
-        data = server_get_data(vm_id,parameter)
+        data = server_info(config[:vm_id], config[:pve_vm_type], parameter)
         ui.output(data)
       end
     end

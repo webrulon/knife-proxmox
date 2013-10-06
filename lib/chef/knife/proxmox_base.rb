@@ -245,14 +245,9 @@ class Chef
         end
       end
       
-      # server_get_address: Returns the IP Address of the machine to chef
-      # field is a string, and if it doesn't exist, it will return nil
-      def server_get_data(vmid,field)
-        node = vmid_to_node(vmid)
-        @connection["nodes/#{node}/openvz/#{vmid}/status/current"].get @auth_params do |response, request, result, &block|
-          #action_response("server get data",response)
-          # (field.match('all'))?JSON.parse(response.body)['data'].to_json : JSON.parse(response.body)['data'][field]
-          if (field == 'all') then
+      def server_info(vmid, type, field)
+        @connection["nodes/#{Chef::Config[:knife][:pve_node_name]}/#{type}/#{vmid}/status/current"].get @auth_params do |response, request, result, &block|
+          if field == 'all'
             JSON.parse(response.body)['data']
           else
             JSON.parse(response.body)['data'][field]
