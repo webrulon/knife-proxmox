@@ -199,28 +199,21 @@ class Chef
       # server_start: Starts the server
       def server_start(vmid, type)
         node = vmid_to_node(vmid)
-        ui.msg("Starting VM #{vmid} on node #{node} of #{type}....")
-        if type == "qemu"
-          @connection["nodes/#{node}/qemu/#{vmid}/status/start"].post "", @auth_params do |response, request, result, &block|
-            # take the response and extract the taskid
-            action_response("server start",response)
-          end
-        elsif type == "openvz"
-          @connection["nodes/#{node}/openvz/#{vmid}/status/start"].post "", @auth_params do |response, request, result, &block|
-            # take the response and extract the taskid
-            action_response("server start",response)
-          end
-        else
-          puts "Invalid server type!"
-          exit 1
+        ui.msg("Starting VM #{vmid} on node #{node}...")
+        @connection["nodes/#{node}/#{type}/#{vmid}/status/start"].post "", @auth_params do |response, request, result, &block|
+          # take the response and extract the taskid
+          action_response("server start",response)
         end
+        rescue Exception => e
+          ui.warn("The VMID does not match any node")
+          exit 1
       end
       
       # server_stop: Stops the server
-      def server_stop(vmid)
+      def server_stop(vmid, type)
         node = vmid_to_node(vmid)
         ui.msg("Stopping VM #{vmid} on node #{node}...")
-        @connection["nodes/#{node}/openvz/#{vmid}/status/stop"].post "", @auth_params do |response, request, result, &block|
+        @connection["nodes/#{node}/#{type}/#{vmid}/status/stop"].post "", @auth_params do |response, request, result, &block|
           # take the response and extract the taskid
           action_response("server stop",response)
         end
