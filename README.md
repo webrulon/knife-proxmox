@@ -40,6 +40,7 @@ Since I don't feel like uploading this to rubygems.org you'll have to manually b
 ## Actions implemented
 
 + proxmox iso list
++ proxmox node list
 + proxmox server list
 + proxmox server info
 + proxmox server create
