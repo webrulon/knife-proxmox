@@ -6,9 +6,9 @@ Gem::Specification.new do |s|
   s.name        = "knife-proxmox"
   s.version     = Knife::Proxmox::VERSION
   s.has_rdoc = false
-  s.authors     = ["Jorge Moratilla", "Sergio Galvan"]
-  s.email       = ["jorge@moratilla.com","sergalma@gmail.com"]
-  s.homepage = "https://bitbucket.org/jmoratilla/knife-proxmox"
+  s.authors     = ["Jorge Moratilla", "Sergio Galvan", "Adam Enger"]
+  s.email       = ["jorge@moratilla.com","sergalma@gmail.com", "adamenger@gmail.com"]
+  s.homepage = "https://github.com/adamenger/knife-proxmox"
   s.summary = "ProxmoxVE Support for Chef's Knife Command"
   s.description = s.summary
   s.extra_rdoc_files = ["README.md", "LICENSE","TODO","CHANGELOG" ]
