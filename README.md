@@ -21,7 +21,7 @@ Then install your ruby language (recommended ruby-1.9.3-xxx)
 
 (See installation instructions beneath)
 
-# knife.rb proxmox settings
+## knife.rb settings
 knife[:pve_cluster_url] = 'https://vm.adamenger.com:8006/api2/json/'
 knife[:pve_node_name] = "vm"
 knife[:pve_user_name] = "root"
@@ -44,7 +44,7 @@ knife[:pve_vm_type] = "qemu"
 ## Some Examples
 
 ### List ISO images
-    #$knife proxmox iso list
+    $ knife proxmox iso list
     Id  Name                                                           Size  
     0   local:iso/CentOS-6.4-i386-minimal.iso                          300 MB
     1   local:iso/CentOS-6.4-x86_64-minimal.iso                        342 MB
