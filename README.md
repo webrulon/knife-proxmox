@@ -7,6 +7,8 @@ Date: 2013-10-06
 
 ## Description
 
+Disclaimer : This plugin is very much a work in progress. I can't guarantee it'll work for you or your setup.
+
 This knife plugin allows to access Proxmox Virtualization Environment (Proxmox VE or PVE) through its API.
 It allows you to lists templates installed on the server/cluster (like images or amis), create a server or
 destroy it.
