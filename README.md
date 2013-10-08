@@ -43,6 +43,7 @@ Since I don't feel like uploading this to rubygems.org you'll have to manually b
 
 + proxmox iso list
 + proxmox node list
++ proxmox qemu list
 + proxmox server list
 + proxmox server info
 + proxmox server create
