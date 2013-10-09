@@ -168,9 +168,7 @@ class Chef
         result = nil
         taskid = nil
         begin
-          if (response.code == 200) then
-            result = "OK"
-          else
+          if (response.code != 200) then
             result = "Error: #{response.code.to_s} - #{response.body}"
           end
           taskid = JSON.parse(response.body)['data']
@@ -180,14 +178,13 @@ class Chef
           result = "An exception ocurred.  Use -VV to show it"
           Chef::Log.debug("Action: #{action}, Result: #{msg}\n")
         end
-        ui.msg(result)
+        #ui.msg(result)
       end
       
       # waitfor end of the task, need the taskid and the timeout
       def waitfor(taskid, timeout=60)
         taskstatus = nil
         while taskstatus.nil? and timeout>= 0 do
-          print "."
           @connection["nodes/#{Chef::Config[:knife][:pve_node_name]}/tasks/#{taskid}/status"].get @auth_params do |response, request, result, &block|
             taskstatus = (JSON.parse(response.body)['data']['status'] == "stopped")?true:nil
           end
@@ -243,6 +240,14 @@ class Chef
         @connection["nodes/#{Chef::Config[:knife][:pve_node_name]}/qemu"].post "#{vm_definition}", @auth_params do |response, request, result, &block|
           action_response("server create",response)
           puts response
+        end
+      end
+
+      # QEMU Delete
+      # This sends an HTTP DELETE to the proper api endpoint for destruction of the VM ID that is supplied to the function. 
+      def qemu_delete(vmid)
+        @connection["nodes/#{Chef::Config[:knife][:pve_node_name]}/qemu/#{vmid}"].delete @auth_params do |response, request, result, &block|
+          action_response("qemu delete",response)
         end
       end
 
