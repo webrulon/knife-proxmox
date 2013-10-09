@@ -10,7 +10,7 @@ class Chef
       
       option :name,
         :short => "-n name",
-        :long  => "--name hostname",
+        :long  => "--name name",
         :description => "VM name"
 
       option :cdrom,
@@ -38,8 +38,7 @@ class Chef
         vm_definition = vm_config.to_a.map { |v| v.join '=' }.join '&'
         puts vm_definition
         qemu_create(vm_config[:vmid], vm_definition)
-        ui.msg("Preparing the server to start")
-        sleep(5)
+        ui.msg("Starting #{vm_config[:name]} with ID #{vm_config[:vmid]}")
         #server_start(vm_id)
         sleep(5)
         
