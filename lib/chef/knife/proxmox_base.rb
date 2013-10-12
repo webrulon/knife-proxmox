@@ -194,7 +194,6 @@ class Chef
         end
       end
 
-
       #
       # VM Functions
       #
@@ -203,7 +202,6 @@ class Chef
         ui.msg("Creating VM #{vmid}...")
         @connection["nodes/#{Chef::Config[:knife][:pve_node_name]}/#{type}"].post "#{vm_definition}", @auth_params do |response, request, result, &block|
           action_response("server create",response)
-          puts response
         end
       end
 
@@ -218,9 +216,7 @@ class Chef
         node = vmid_to_node(vmid)
         ui.msg("Starting VM #{vmid} on node #{node}...")
         @connection["nodes/#{node}/#{vmid_to_type(vmid)}/#{vmid}/status/start"].post "", @auth_params do |response, request, result, &block|
-          # take the response and extract the taskid
           action_response("server start",response)
-          puts response
         end
         rescue Exception => e
           ui.warn("The VMID does not match any node")
@@ -247,7 +243,6 @@ class Chef
           end
         end
       end
-
       
     end # module
   end # class 
