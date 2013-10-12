@@ -93,6 +93,7 @@ I have yet to upload this to rubygems.org so you'll have to manually build and i
     uptime:    61018
 
 **Get all server attributes - QEMU**
+
 	$ knife proxmox vm info -I 103
 	balloon:   536870912
 	cpu:       0
@@ -114,6 +115,7 @@ I have yet to upload this to rubygems.org so you'll have to manually build and i
 	uptime:    2435
 
 **Get specific attribute**
+
     $ knife proxmox vm info -I 102 -f name
     proxmox
 
