@@ -3,7 +3,7 @@ Date: 2012-10-07
 
 [2013-10-05]
 Version: 0.0.20
-* adding support for qemu on all actions
+* Added support QEMU. Moved all functionality to vm sub command.
 
 [2013-05-07]
 Version: 0.0.19
