@@ -19,7 +19,7 @@ class Chef
         ]
         
         @connection["nodes/#{Chef::Config[:knife][:pve_node_name]}/storage/local/content"].get @auth_params do |response, request, result, &block|
-          iso_index = 0
+          iso_index = 1
           JSON.parse(response.body)['data'].each { |entry|
             if entry['content'] == 'iso' then
               iso_list << iso_index.to_s

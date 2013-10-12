@@ -1,6 +1,5 @@
 require 'chef/knife'
-#TODO: Testing of everything
-#TODO: All inputs MUST be checked and errors MUST be catched.
+
 class Chef
   class Knife
     module ProxmoxBase
@@ -24,7 +23,6 @@ class Chef
             Chef::Knife::Bootstrap.load_deps
           end
           
-          # options
           option :pve_cluster_url,
             :short => "-U URL",
             :long  => "--pve_cluster_url URL",
@@ -55,34 +53,10 @@ class Chef
             :description => "Proxmox VE server name where you will actuate",
             :proc  => Proc.new {|node| Chef::Config[:knife][:pve_node_name] = node }
 
-          option :pve_vm_type,
-            :short => "-t type",
-            :long  => "--type vm_type",
-            :description => "The type of vm you'd like to control",
-            :proc  => Proc.new {|type| Chef::Config[:knife][:pve_vm_type] = type }
-          
         end
       end
-      
-      # Checks that the parameter provided is defined in knife.rb
-      def check_global_parameter(value)
-        if (Chef::Config[:knife][value].nil? or Chef::Config[:knife][value].empty?) then
-          ui.error "knife[:#{value.to_s}] is empty, define a value for it and try again"
-          exit 1
-        end
-        Chef::Log.debug("knife[:#{value}] = " + Chef::Config[:knife][value])
-      end
-      
-      def check_config_parameter(value)
-        if (config[value].nil? or config[value].empty?) then
-          ui.error "--#{value} is empty, define a value for it and try again"
-          exit 1
-        end
-      end
-      
-      # Establishes the connection with proxmox server
+
       def connection
-        # First, let's check we have all info needed to connect to pve
         [:pve_cluster_url, :pve_node_name, :pve_user_name, :pve_user_password, :pve_user_realm].each do |value|
           check_global_parameter(value)
         end
@@ -106,8 +80,26 @@ class Chef
           {:CSRFPreventionToken => csrf_prevention_token, :cookie => token} 
         end
       end
+
+      #
+      # Generic functions
+      #
+
+      def check_global_parameter(value)
+        if (Chef::Config[:knife][value].nil? or Chef::Config[:knife][value].empty?) then
+          ui.error "knife[:#{value.to_s}] is empty, define a value for it and try again"
+          exit 1
+        end
+        Chef::Log.debug("knife[:#{value}] = " + Chef::Config[:knife][value])
+      end
       
-      # new_vmid: calculates a new vmid from the highest existing vmid
+      def check_config_parameter(value)
+        if (config[value].nil? or config[value].empty?) then
+          ui.error "--#{value} is empty, define a value for it and try again"
+          exit 1
+        end
+      end      
+      
       def new_vmid
         vmid ||= @connection['cluster/resources?type=vm'].get @auth_params do |response, request, result, &block|
           data = JSON.parse(response.body)['data']
@@ -119,17 +111,20 @@ class Chef
         end
       end
 
-      # locate_config_value: find a value in arguments or default chef config properties
+      def vmid_to_type(vmid)
+        @connection['cluster/resources?type=vm'].get @auth_params do |response, request, result, &block|
+          data = JSON.parse(response.body)['data']
+          return data.find {|d| d['vmid'] == vmid.to_i }['type']
+        end
+      end
+
       def locate_config_value(key)
         key = key.to_sym
         Chef::Config[:knife][key] || config[key]
       end
-      
-      # template_number_to_name: converts the id from the template list to the real name in the storage
-      # of the node
+
       def template_number_to_name(number,storage)
         template_list = []
-        #TODO: esta parte hay que sacarla a un modulo comun de acceso a templates
         @connection["nodes/#{Chef::Config[:knife][:pve_node_name]}/storage/#{storage}/content"].get @auth_params do |response, request, result, &block|
           JSON.parse(response.body)['data'].each { |entry|
             if entry['content'] == 'vztmpl' then
@@ -139,8 +134,7 @@ class Chef
         end
         return CGI.escape(template_list[number.to_i])
       end
-      
-      # server_name_to_vmid: Use the name of the server to get the vmid
+
       def server_name_to_vmid(name)
         @connection['cluster/resources?type=vm'].get @auth_params do |response, request, result, &block|
           data = JSON.parse(response.body)['data']
@@ -150,7 +144,6 @@ class Chef
         end
       end
       
-      # vmid_to_node: Specify the vmid and get the node in which is. nil otherwise
       def vmid_to_node(vmid)
         node = nil
         @connection['cluster/resources?type=vm'].get @auth_params do |response, request, result, &block|
@@ -178,10 +171,8 @@ class Chef
           result = "An exception ocurred.  Use -VV to show it"
           Chef::Log.debug("Action: #{action}, Result: #{msg}\n")
         end
-        #ui.msg(result)
       end
-      
-      # waitfor end of the task, need the taskid and the timeout
+
       def waitfor(taskid, timeout=60)
         taskstatus = nil
         while taskstatus.nil? and timeout>= 0 do
@@ -192,98 +183,7 @@ class Chef
           sleep(1)
         end
       end
-      
-      # server_start: Starts the server
-      def server_start(vmid, type)
-        node = vmid_to_node(vmid)
-        ui.msg("Starting VM #{vmid} on node #{node}...")
-        @connection["nodes/#{node}/#{type}/#{vmid}/status/start"].post "", @auth_params do |response, request, result, &block|
-          # take the response and extract the taskid
-          action_response("server start",response)
-        end
-        rescue Exception => e
-          ui.warn("The VMID does not match any node")
-          exit 1
-      end
-      
-      # server_stop: Stops the server
-      def server_stop(vmid, type)
-        node = vmid_to_node(vmid)
-        ui.msg("Stopping VM #{vmid} on node #{node}...")
-        @connection["nodes/#{node}/#{type}/#{vmid}/status/stop"].post "", @auth_params do |response, request, result, &block|
-          # take the response and extract the taskid
-          action_response("server stop",response)
-        end
-        # TODO: check with server_get_data the status/current/status of the vmid to send the umount command
-        rescue Exception => e
-          ui.warn("The VMID does not match any node")
-          exit 1
-      end
-      
-      # server_unmount: Unmounts the server's filesystem
-      def server_umount(vmid)
-        node = vmid_to_node(vmid)
-        ui.msg("Unmounting VM #{vmid} on node #{node}...")
-        @connection["nodes/#{node}/openvz/#{vmid}/status/umount"].post "", @auth_params do |response, request, result, &block|
-          # take the response and extract the taskid
-          action_response("server umount",response)
-        end
-        rescue Exception => e
-          ui.warn("The VMID does not match any node")
-          exit 1
-      end
 
-      
-      # server_create: Sends a vm_definition to proxmox for creation
-      def qemu_create(vmid, vm_definition)
-        ui.msg("Creating VM #{vmid}...")
-        @connection["nodes/#{Chef::Config[:knife][:pve_node_name]}/qemu"].post "#{vm_definition}", @auth_params do |response, request, result, &block|
-          action_response("server create",response)
-          puts response
-        end
-      end
-
-      # QEMU Delete
-      # This sends an HTTP DELETE to the proper api endpoint for destruction of the VM ID that is supplied to the function. 
-      def qemu_delete(vmid)
-        @connection["nodes/#{Chef::Config[:knife][:pve_node_name]}/qemu/#{vmid}"].delete @auth_params do |response, request, result, &block|
-          action_response("qemu delete",response)
-        end
-      end
-
-      # server_create: Sends a vm_definition to proxmox for creation
-      def server_create(vmid, type, vm_definition)
-        ui.msg("Creating VM #{vmid}...")
-        @connection["nodes/#{Chef::Config[:knife][:pve_node_name]}/#{type}"].post "#{vm_definition}", @auth_params do |response, request, result, &block|
-          action_response("server create",response)
-          puts response
-        end
-      end
-      
-      def server_info(vmid, type, field)
-        @connection["nodes/#{Chef::Config[:knife][:pve_node_name]}/#{type}/#{vmid}/status/current"].get @auth_params do |response, request, result, &block|
-          if field == 'all'
-            JSON.parse(response.body)['data']
-          else
-            JSON.parse(response.body)['data'][field]
-          end
-        end
-      end
-      
-      # server_destroy: Destroys the server
-      def server_destroy(vmid)
-        node = vmid_to_node(vmid)
-        ui.msg("Destroying VM #{vmid} on node #{node}...")
-        @connection["nodes/#{node}/openvz/#{vmid}"].delete @auth_params do |response, request, result, &block|
-          action_response("server destroy",response)
-        end
-      end
-      
-      # Extracted from Chef::Knife.delete_object, because it has a
-      # confirmation step built in... By specifying the '--purge'
-      # flag (and also explicitly confirming the server destruction!)
-      # the user is already making their intent known.  It is not
-      # necessary to make them confirm two more times.
       def destroy_item(klass, name, type_name)
         begin
           object = klass.load(name)
@@ -293,9 +193,61 @@ class Chef
           ui.warn("Could not find a #{type_name} named #{name} to delete!")
         end
       end
+
+
+      #
+      # VM Functions
+      #
+
+      def vm_create(vmid, type, vm_definition)
+        ui.msg("Creating VM #{vmid}...")
+        @connection["nodes/#{Chef::Config[:knife][:pve_node_name]}/#{type}"].post "#{vm_definition}", @auth_params do |response, request, result, &block|
+          action_response("server create",response)
+          puts response
+        end
+      end
+
+      def vm_delete(vmid)
+        ui.msg("Deleting VM #{vmid}...")
+        @connection["nodes/#{Chef::Config[:knife][:pve_node_name]}/#{vmid_to_type(vmid)}/#{vmid}"].delete @auth_params do |response, request, result, &block|
+          action_response("qemu delete",response)
+        end
+      end
+
+      def vm_start(vmid)
+        node = vmid_to_node(vmid)
+        ui.msg("Starting VM #{vmid} on node #{node}...")
+        @connection["nodes/#{node}/#{vmid_to_type(vmid)}/#{vmid}/status/start"].post "", @auth_params do |response, request, result, &block|
+          # take the response and extract the taskid
+          action_response("server start",response)
+          puts response
+        end
+        rescue Exception => e
+          ui.warn("The VMID does not match any node")
+          exit 1
+      end
       
-      
-      
+      def vm_stop(vmid)
+        node = vmid_to_node(vmid)
+        ui.msg("Stopping VM #{vmid}...")
+        @connection["nodes/#{node}/#{vmid_to_type(vmid)}/#{vmid}/status/stop"].post "", @auth_params do |response, request, result, &block|
+          action_response("server stop",response)
+        end
+        rescue Exception => e
+          ui.warn("The VMID does not match any node")
+          exit 1
+      end      
+
+      def vm_info(vmid, field)
+        @connection["nodes/#{Chef::Config[:knife][:pve_node_name]}/#{vmid_to_type(vmid)}/#{vmid}/status/current"].get @auth_params do |response, request, result, &block|
+          if field == 'all'
+            JSON.parse(response.body)['data']
+          else
+            JSON.parse(response.body)['data'][field]
+          end
+        end
+      end
+
       
     end # module
   end # class 
