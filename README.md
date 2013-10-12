@@ -69,6 +69,7 @@ I have yet to upload this to rubygems.org so you'll have to manually build and i
 ### Get VM information
 
 **Get all server attributes - OpenVZ**
+
     $ knife proxmox vm info -I 102
     cpu:       0.00281876923420022
     cpus:      2
