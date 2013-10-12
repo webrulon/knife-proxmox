@@ -68,7 +68,7 @@ I have yet to upload this to rubygems.org so you'll have to manually build and i
 
 ### Get VM information
 
-    **Get all server attributes - OpenVZ**
+**Get all server attributes - OpenVZ**
     $ knife proxmox vm info -I 102
     cpu:       0.00281876923420022
     cpus:      2
@@ -91,7 +91,7 @@ I have yet to upload this to rubygems.org so you'll have to manually build and i
     type:      openvz
     uptime:    61018
 
-    **Get all server attributes - QEMU**
+**Get all server attributes - QEMU**
 	$ knife proxmox vm info -I 103
 	balloon:   536870912
 	cpu:       0
@@ -112,7 +112,7 @@ I have yet to upload this to rubygems.org so you'll have to manually build and i
 	template:
 	uptime:    2435
 
-    **Get specific attribute**
+**Get specific attribute**
     $ knife proxmox vm info -I 102 -f name
     proxmox
 
