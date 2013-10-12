@@ -7,7 +7,9 @@ Date: 2013-10-06
 
 ## Description
 
-This knife plugin allows to access Proxmox Virtualization Environment (PVE) through its [http://pve.proxmox.com/pve2-api-doc/](API).
+This knife plugin allows to access Proxmox Virtualization Environment (PVE) through its API.
+
+PVE API Docs :: http://pve.proxmox.com/pve2-api-doc/
 
 Supports both OpenVZ and QEMU instances. Not all API methods are supported quite yet, however most functionality will work.
 
