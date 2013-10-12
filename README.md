@@ -120,8 +120,7 @@ I have yet to upload this to rubygems.org so you'll have to manually build and i
     proxmox
 
 ### List templates installed
-    $ knife proxmox  template list -U https://localhost:8006/api2/json/ -n localhost -u test -p test123 -R pve -VV
-    DEBUG: Using configuration from /home/jorge/workspace/chef-repo/.chef/knife.rb
+    $ knife proxmox  template list
     Id  Name                                                         Size
     0   local:vztmpl/debian-6.0-request-tracker_3.8.8-2_i386.tar.gz  171 MB
     1   local:vztmpl/old_ubuntu-11.10-x86_64.tar.gz                  124 MB
@@ -131,8 +130,7 @@ I have yet to upload this to rubygems.org so you'll have to manually build and i
 
 
 ### List templates available to download
-    $ knife proxmox template available -U https://localhost:8006/api2/json/ -u test -p test123 -n localhost -R pve  -VV
-    DEBUG: Using configuration from /home/jorge/workspace/chef-repo/.chef/knife.rb
+    $ knife proxmox template available
     Name                                                       Operating System
     debian-6-turnkey-concrete5_12.0-1_i386.tar.gz              debian-6
     ubuntu-10.04-turnkey-prestashop_11.3-1_i386.tar.gz         ubuntu-10.04
@@ -142,13 +140,11 @@ I have yet to upload this to rubygems.org so you'll have to manually build and i
 
 
 ### Create OpenVZ VM
-
     $  knife proxmox vm create --vm_type openvz --os_template local:vztmpl/ubuntu-12.04.tar.gz -h vm.test.com -z 2 -m 1024
     Creating VM 105...
     Starting VM 105 on node vm...
 
 ### Create QEMU VM
-
     $  knife proxmox vm create --vm_type qemu --cdrom local:iso/ubuntu-12.04.3-desktop-i386.iso -h vm.test.com -z 2 -m 1024
     Creating VM 105...
     Starting VM 105 on node vm...
@@ -162,7 +158,6 @@ I have yet to upload this to rubygems.org so you'll have to manually build and i
     Stopping VM 103....
 
 ### Deleting a VM
-Be careful with this, there's no confirm built in yet.
     $ knife proxmox vm delete -I 103
 	Stopping VM 103...
 	Deleting VM 103...
