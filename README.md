@@ -7,15 +7,15 @@ Date: 2013-10-06
 
 ## Description
 
-This knife plugin allows to access Proxmox Virtualization Environment (PVE) through its ![http://pve.proxmox.com/pve2-api-doc/](API).
+This knife plugin allows to access Proxmox Virtualization Environment (PVE) through its [http://pve.proxmox.com/pve2-api-doc/](API).
 
 Supports both OpenVZ and QEMU instances. Not all API methods are supported quite yet, however most functionality will work.
 
-Bootstrapping support is not yet supported. When it is, only OpenVZ instances will be supported.
+Bootstrapping is not yet supported. When it is, only OpenVZ instances will be supported.
 
 ## Installation
 
-Since I don't feel like uploading this to rubygems.org you'll have to manually build and install.
+I have yet to upload this to rubygems.org so you'll have to manually build and install:
 
     $ git clone https://github.com/adamenger/knife-proxmox.git
 	$ gem build knife-proxmox/knife-proxmox.gemspec
@@ -28,7 +28,6 @@ Since I don't feel like uploading this to rubygems.org you'll have to manually b
 	knife[:pve_user_name] = "root"
 	knife[:pve_user_password] = "password"
 	knife[:pve_user_realm] = "pam"
-	knife[:pve_vm_type] = "qemu"
 
 ## Actions implemented
 
@@ -54,13 +53,18 @@ Since I don't feel like uploading this to rubygems.org you'll have to manually b
     3   local:iso/pfSense-LiveCD-2.0.3-RELEASE-i386-20130412-1022.iso  89 MB 
     4   local:iso/ubuntu-12.04.3-desktop-i386.iso                      707 MB
 
-### List servers
+### List virtual machines
     $ knife proxmox vm list
 	Id   Node  Name                   Type    Status
 	101  vm    qemu-test              qemu    running
 	102  vm    qemu-test2             qemu    stopped
 	103  vm    openvz-test            openvz  running
 	104  vm    openvz-test2           openvz  running
+
+### List PVE servers
+    $ knife proxmox node list
+	#  Id       Name  Free Mem  Disk    Uptime
+	1  node/vm  vm    10.08GB   923 GB  31 Days
 
 ### Get VM information
 
@@ -134,53 +138,28 @@ Since I don't feel like uploading this to rubygems.org you'll have to manually b
     debian-6.0-wordpress_3.4.2-1_i386.tar.gz                   debian-6.0 .....
 
 
-### Create a server (read the note at the end of the document.  It's about obtaining the IPAddress)
+### Create OpenVZ VM
 
-    $  knife proxmox server create -n ankh -r "recipe[java]" -C 2 -M 1024 -H example-server -P test123 -T 4
-    Creating VM 473...
-    ..............OK
-    Preparing the server to start
-    Starting VM 473 on node ankh....
-    ..OK
-    New Server 473 has IP Address: 10.0.2.19
-    done
-    Bootstrapping Chef on 10.0.2.19
-    10.0.2.19 --2013-01-23 01:27:20--  http://opscode.com/chef/install.sh
-    10.0.2.19 Resolving opscode.com...
-    10.0.2.19 184.106.28.83
-    10.0.2.19 Connecting to opscode.com|184.106.28.83|:80...
-    10.0.2.19 connected.
-    10.0.2.19 HTTP request sent, awaiting response...
-    10.0.2.19 301 Moved Permanently
-    10.0.2.19 Location: http://www.opscode.com/chef/install.sh [following]
-    10.0.2.19 --2013-01-23 01:27:21--  http://www.opscode.com/chef/install.sh
-    10.0.2.19 Resolving www.opscode.com...
-    10.0.2.19 184.106.28.83
-    10.0.2.19 Reusing existing connection to opscode.com:80.
-    10.0.2.19 HTTP request sent, awaiting response...
-    10.0.2.19 200 OK
+    $  knife proxmox vm create --vm_type openvz --os_template local:vztmpl/ubuntu-12.04.tar.gz -h vm.test.com -z 2 -m 1024
+    Creating VM 105...
+    Starting VM 105 on node vm...
 
+### Create QEMU VM
 
-### Starting a server
-    $ knife proxmox server start --vmid 401
-    Starting VM 401....
-    Result: 200
+    $  knife proxmox vm create --vm_type qemu --cdrom local:iso/ubuntu-12.04.3-desktop-i386.iso -h vm.test.com -z 2 -m 1024
+    Creating VM 105...
+    Starting VM 105 on node vm...
 
+### Starting a VM
+    $ knife proxmox vm start -I 103
+    Starting VM 103....
 
-### Stopping a server
-    $ knife proxmox server stop --vmid 103
-    Stoping VM 103....
-    Result: 200
+### Stopping a VM
+    $ knife proxmox vm stop -I 103
+    Stopping VM 103....
 
-
-### Destroy a server
-    $ knife proxmox server destroy -U https://localhost:8006/api2/json/ -u test -p test123 -n localhost -R pve -N vm-node1 -VV -P
-    DEBUG: Using configuration from /home/jorge/workspace/chef-repo/.chef/knife.rb
-    node to destroy: vm-node1 [vmid: 200]
-    Continue? (Y/N) y
-    Stopping VM 303....
-    Result: 200
-    ..............................
-    Result: 200
-    WARNING: Deleted node vm-node1
-    WARNING: Deleted client vm-node1
+### Deleting a VM
+Be careful with this, there's no confirm built in yet.
+    $ knife proxmox vm delete -I 103
+	Stopping VM 103...
+	Deleting VM 103...
