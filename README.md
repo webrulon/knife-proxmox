@@ -7,20 +7,11 @@ Date: 2013-10-06
 
 ## Description
 
-Disclaimer : This plugin is very much a work in progress. I can't guarantee it'll work for you or your setup.
+This knife plugin allows to access Proxmox Virtualization Environment (PVE) through its ![http://pve.proxmox.com/pve2-api-doc/](API).
 
-This knife plugin allows to access Proxmox Virtualization Environment (Proxmox VE or PVE) through its API.
-It allows you to lists templates installed on the server/cluster (like images or amis), create a server or
-destroy it.
+Supports both OpenVZ and QEMU instances. Not all API methods are supported quite yet, however most functionality will work.
 
-Support for QEMU is in progress. 
-
-## Requirements
-
-* zlib (zlib1g-dev)
-* openssl (libopenssl-ruby, libssl-dev)
-
-Then install your ruby language (recommended ruby-1.9.3-xxx)
+Bootstrapping support is not yet supported. When it is, only OpenVZ instances will be supported.
 
 ## Installation
 
@@ -41,17 +32,16 @@ Since I don't feel like uploading this to rubygems.org you'll have to manually b
 
 ## Actions implemented
 
-+ proxmox iso list
-+ proxmox node list
-+ proxmox qemu list
-+ proxmox server list
-+ proxmox server info
-+ proxmox server create
-+ proxmox server start
-+ proxmox server stop
-+ proxmox server destroy
-+ proxmox template available
-+ proxmox template list
++ knife proxmox iso list (options)
++ knife proxmox node list (options)
++ knife proxmox template available (options)
++ knife proxmox template list (options)
++ knife proxmox vm create (options)
++ knife proxmox vm delete (options)
++ knife proxmox vm info (options)
++ knife proxmox vm list (options)
++ knife proxmox vm start (options)
++ knife proxmox vm stop (options)
 
 ## Some Examples
 
@@ -65,19 +55,17 @@ Since I don't feel like uploading this to rubygems.org you'll have to manually b
     4   local:iso/ubuntu-12.04.3-desktop-i386.iso                      707 MB
 
 ### List servers
-    $ knife proxmox server list
-    Id   Node    Name                 Type    Status
-    102  node-1  test                 qemu    down
-    104  node-1  tetatet.example.com  openvz  down
-    202  node-2  chef-client1         openvz  down
-    470  node-2  sg-node1.example.com openvz  up
+    $ knife proxmox vm list
+	Id   Node  Name                   Type    Status
+	101  vm    qemu-test              qemu    running
+	102  vm    qemu-test2             qemu    stopped
+	103  vm    openvz-test            openvz  running
+	104  vm    openvz-test2           openvz  running
 
-### Get info for a server
-    $ knife proxmox server info -H tetatet.example.com -P ip
-    192.168.1.1
+### Get VM information
 
-    $ knife proxmox server info -H tetatet.example.com
-    knife proxmox server info -H tetatet.example.com -P ip
+    **Get all server attributes - OpenVZ**
+    $ knife proxmox vm info -I 102
     cpu:       0.00281876923420022
     cpus:      2
     disk:      5833015296
@@ -90,7 +78,7 @@ Since I don't feel like uploading this to rubygems.org you'll have to manually b
     maxmem:    4294967296
     maxswap:   536870912
     mem:       1145778176
-    name:      tetatet.example.com
+    name:      test.example.com
     netin:     27888604
     netout:    2829601
     nproc:     140
@@ -99,6 +87,30 @@ Since I don't feel like uploading this to rubygems.org you'll have to manually b
     type:      openvz
     uptime:    61018
 
+    **Get all server attributes - QEMU**
+	$ knife proxmox vm info -I 103
+	balloon:   536870912
+	cpu:       0
+	cpus:      1
+	disk:      0
+	diskread:  35338740
+	diskwrite: 0
+	ha:        0
+	maxdisk:   0
+	maxmem:    536870912
+	mem:       151617269
+	name:      proxmox
+	netin:     0
+	netout:    0
+	pid:       609365
+	qmpstatus: running
+	status:    running
+	template:
+	uptime:    2435
+
+    **Get specific attribute**
+    $ knife proxmox vm info -I 102 -f name
+    proxmox
 
 ### List templates installed
     $ knife proxmox  template list -U https://localhost:8006/api2/json/ -n localhost -u test -p test123 -R pve -VV
