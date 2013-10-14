@@ -29,9 +29,24 @@ class Chef
         :description => "(OpenVZ|QEMU) - Amount of memory to allocate to VM."
 
       option :cdrom,
-        :short => "-c local:iso/filename.iso",
+        :short => "-C local:iso/filename.iso",
         :long  => "--cdrom local:iso/filename.iso",
         :description => "(QEMU) - ISO to mount to cdrom drive"
+
+      option :swap,
+        :short => "-s 512",
+        :long  => "--swap 512",
+        :description => "(OpenVZ) - Set the available swap space for the container. Defaults to 1.5x of memory."
+
+      option :password,
+        :short => "-P password",
+        :long  => "--vm_password password",
+        :description => "(OpenVZ) - Root password to be set on the container"
+
+      option :ip,
+        :short => "-I 192.168.7.1",
+        :long  => "--ip 192.168.1.1",
+        :description => "(OpenVZ) - IP Address to set on the container"
 
       option :vm_type,
         :short => "-t type",
@@ -51,11 +66,14 @@ class Chef
           [:os_template].each do |param|
             check_config_parameter(param)
           end
-          vm_config[:vmid]       = config[:vmid]       ||= new_vmid
-          vm_config[:cpus]       = config[:cpu]       ||= 1
-          vm_config[:memory]     = config[:memory]     ||= 512
-          vm_config[:hostname]   = config[:hostname]   ||= "proxmox"
-          vm_config[:ostemplate] = config[:os_template]   ||= ""
+          vm_config[:vmid]       = config[:vmid]         ||= new_vmid
+          vm_config[:cpus]       = config[:cpu]          ||= 1
+          vm_config[:memory]     = config[:memory]       ||= 512
+          vm_config[:swap]       = config[:swap]         ||= (config[:memory] * 1.5).to_i
+          vm_config[:hostname]   = config[:hostname]     ||= "proxmox"
+          vm_config[:ostemplate] = config[:os_template]  ||= ""
+          vm_config[:ip_address] = config[:ip]           if config[:ip]
+          vm_config[:password]   = config[:password]     if config[:password]
         elsif config[:vm_type] == "qemu"
           vm_config[:vmid]       = config[:vmid]       ||= new_vmid
           vm_config[:sockets]    = config[:cpu]        ||= 1
@@ -64,7 +82,7 @@ class Chef
           vm_config[:cdrom]      = config[:cdrom]      if config[:cdrom]
           puts vm_config
         end
-
+        puts vm_config
         vm_definition = vm_config.to_a.map { |v| v.join '=' }.join '&'
         vm_create(vm_config[:vmid], config[:vm_type], vm_definition)
         sleep(5)

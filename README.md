@@ -1,4 +1,4 @@
-# Chef::Knife::Proxmox
+# Knife Proxmox
 
 Authors: Jorge Moratilla, Sergio Galvan, Adam Enger
 
