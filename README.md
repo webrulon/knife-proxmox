@@ -7,7 +7,7 @@ Date: 2013-10-06
 
 ## Description
 
-This knife plugin allows to access Proxmox Virtualization Environment (PVE) through its API.
+This is a knife plugin for Chef Server 11. knife proxmox allows to access the Proxmox Virtualization Environment (PVE) through its API.
 
 PVE API Docs :: http://pve.proxmox.com/pve2-api-doc/
 
