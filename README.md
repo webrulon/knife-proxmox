@@ -140,6 +140,11 @@ I have yet to upload this to rubygems.org so you'll have to manually build and i
     debian-6-turnkey-tomcat-apache_12.0-1_i386.tar.gz          debian-6
     debian-6.0-wordpress_3.4.2-1_i386.tar.gz                   debian-6.0 .....
 
+### Bootstrapping OpenVZ VM
+
+    knife proxmox vm create --vm_type openvz -m 1024 --ip 192.168.7.6 \
+    -P password --os_template local:vztmpl/ubuntu-12.04-standard_12.04-1_i386.tar.gz \
+    --bootstrap --runlist "recipe[ase-role-base], recipe[jenkins::server], recipe[jenkins::proxy]" -h jenkins.adamenger.com
 
 ### Create OpenVZ VM
     $  knife proxmox vm create --vm_type openvz --os_template local:vztmpl/ubuntu-12.04.tar.gz -h vm.test.com -z 2 -m 1024
