@@ -13,7 +13,7 @@ PVE API Docs :: http://pve.proxmox.com/pve2-api-doc/
 
 Supports both OpenVZ and QEMU instances. Not all API methods are supported quite yet, however most functionality will work.
 
-Bootstrapping is not yet supported. When it is, only OpenVZ instances will be supported.
+Bootstrapping is now supported for OpenVZ instances
 
 ## Installation
 
